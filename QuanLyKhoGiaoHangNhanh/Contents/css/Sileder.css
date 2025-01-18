@@ -1,0 +1,79 @@
+﻿body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 100%;
+    background-color: rgba(212, 56, 13, 0.9);
+    background-image: url('/Contents/image/Hoa.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding-top: 20px;
+    transition: all 0.3s ease;
+    z-index: 1050;
+}
+
+
+    .sidebar:hover {
+        width: 250px;
+    }
+
+    .sidebar ul {
+        padding-left: 0;
+        list-style: none;
+    }
+
+    .sidebar li {
+        margin: 15px 0;
+    }
+
+    .sidebar a {
+        color: #fff;
+        text-decoration: none;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.3s;
+    }
+
+        .sidebar a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+    .sidebar .nav-text {
+        opacity: 0;
+        visibility: hidden;
+        white-space: nowrap;
+        transition: opacity 0.3s, visibility 0.3s;
+        margin-left: 10px;
+    }
+
+    .sidebar:hover .nav-text {
+        opacity: 1;
+        visibility: visible;
+    }
+
+.content {
+    margin-left: 50px;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar:hover ~ .content {
+    margin-left: 250px;
+}
+
+.leaf {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: var(--tet-secondary);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    animation: fallLeaf 5s linear infinite;
+    pointer-events: none;
+}

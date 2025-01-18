@@ -1,0 +1,149 @@
+﻿@using PagedList
+@using PagedList.Mvc
+@model IPagedList<QuanLyKhoGiaoHangNhanh.Models.LoiNhanVien>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <title>Danh sách Lỗi</title>
+    <link rel="stylesheet" href="~/Contents/css/General.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmDelete(url) {
+            Swal.fire({
+                title: 'Bạn có chắc chắn muốn xóa?',
+                text: "Thao tác này không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        }
+            document.addEventListener("DOMContentLoaded", function () {
+    var notification = "@Html.Raw(TempData["Notification"])";
+    var notificationType = "@Html.Raw(TempData["NotificationType"])";
+
+    if (notification && notificationType) {
+        Swal.fire({
+            position: "top-end",
+            text: notification,
+            icon: notificationType,
+            showConfirmButton: false,
+            timer: 1000
+        });
+    }
+});
+    </script>
+</head>
+<body>
+    @if (Model.Count == 0)
+    {
+        <h1 class="flex-grow-1 text-center">
+            Lỗi nhân viên không có dữ liệu
+        </h1>
+        <button class="btn btn-import" onclick="window.location.href='@Url.Action("CreateViolate", "Personnel")'">
+            <i class="bi bi-plus-circle-dotted"></i> Ghi lỗi
+        </button>
+    }
+    else
+    {
+        <div class="container">
+            <div class="header d-flex justify-content-between align-items-center">
+                <h1 class="flex-grow-1 text-center">
+                    Lỗi nhân viên
+                </h1>
+                <form class="d-flex flex-grow-1 justify-content-center" method="get">
+                    <div class="col-md-5 px-2 align-content-center">
+                        <input type="text" name="searchTerm" class="form-control" placeholder="Tìm kiếm theo tên nhân viên..." value="@Request.QueryString["searchTerm"]" />
+                    </div>
+                    <div class="col-md-5 px-2 align-content-center">
+                        <select name="sortViolate" class="form-select">
+                            <option value="asc" @(Request.QueryString["sortViolate"] == "asc" ? "selected" : "")>Chi phí phát sinh: Thấp đến Cao</option>
+                            <option value="desc" @(Request.QueryString["sortViolate"] == "desc" ? "selected" : "")>Chi phí phát sinh: Cao đến Thấp</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 px-2 align-content-center">
+                        <button type="submit" class="btn btn-warning">Lọc</button>
+                    </div>
+                </form>
+                <div class="action-buttons">
+                    <button class="btn btn-import" onclick="window.location.href='@Url.Action("CreateViolate", "Personnel")'">
+                        <i class="bi bi-plus-circle-dotted"></i> Ghi lỗi
+                    </button>
+                    <button class="btn btn-import" onclick="window.location.href='@Url.Action("ExportToExcelViolate", "Personnel")'">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Xuất Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+        if (!string.IsNullOrEmpty(Request.QueryString["searchTerm"]))
+        {
+            <p class="text-muted">Kết quả tìm kiếm cho: @Request.QueryString["searchTerm"]</p>
+        }
+
+        <table class="table table-hover">
+            <thead>
+                <tr class="align-content-center">
+                    <th>Tên nhân viên</th>
+                    <th>Mô tả lỗi</th>
+                    <th>Ngày phát sinh</th>
+                    <th>Chi phí phát sinh</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.NhanVien.TenNhanVien</td>
+                        <td>@Html.DisplayFor(modelItem => item.MoTaLoi)</td>
+                        <td>@Html.DisplayFor(modelItem => item.NgayPhatSinh)</td>
+                        <td>@String.Format("{0:0,0}", item.ChiPhiPhatSinh)</td>
+                        <td>
+                            <a href="javascript:void(0);"
+                               class="btn btn-dark btn-sm justify-content-sm-center"
+                               onclick="confirmDelete('@Url.Action("DeleteViolate", "Personnel", new { Id = item.Id })')">
+                                Xóa
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+
+        <div class="d-flex justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("Index",
+                                                      new
+                                                      {
+                                                          page = page,
+                                                          searchTerm = Request.QueryString["searchTerm"],
+                                                          sortViolate = Request.QueryString["sortViolate"]
+                                                      }),
+                                                      new PagedListRenderOptions
+                                                      {
+                                                          DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                                                          DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                                                          DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                                                          DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                                                          MaximumPageNumbersToDisplay = 5,
+                                                          DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                                                          UlElementClasses = new[] { "pagination" },
+                                                          LiElementClasses = new[] { "page-item" },
+                                                      })
+
+        </div>
+    }
+</body>
+</html>
+

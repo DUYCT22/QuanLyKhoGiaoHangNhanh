@@ -1,0 +1,20 @@
+﻿@model QuanLyKhoGiaoHangNhanh.Models.DonHang
+
+<div style="color:black" class="row">
+    <div class="col-6">
+        <p><strong>Địa chỉ:</strong> @Model.DiaChi</p>
+        <p><strong>Tên:</strong> @Model.Ten</p>
+        <p><strong>Loại:</strong> @Model.Loai</p>
+        <p><strong>Cân nặng:</strong> @Model.CanNang kg</p>
+        <p><strong>Thể tích:</strong> @Model.TheTich m3</p>
+        <p><strong>Tên người nhận:</strong> @Model.TenNguoiNhan</p>
+    </div>
+    <div class="col-6">
+        <p><strong>Số điện thoại:</strong> @Model.Sdt</p>
+        <p><strong>Giá trị đơn hàng:</strong> @String.Format("{0:0,0}", Model.GiaTriDonHang) VND</p>
+        <p><strong>Phí vận chuyển:</strong> @String.Format("{0:0,0}", Model.PhiVanChuyen) VND</p>
+        <p><strong>Tổng tiền:</strong> @String.Format("{0:0,0}", Model.TongTien) VND</p>
+        <p><strong>Ghi chú:</strong> @Model.GhiChu</p>
+        <p><strong>Trạng thái:</strong> @Model.TrangThai</p>
+    </div>
+</div>

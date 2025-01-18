@@ -1,0 +1,175 @@
+﻿@using PagedList
+@using PagedList.Mvc
+@model IPagedList<QuanLyKhoGiaoHangNhanh.Models.VatTu>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/Contents/css/General.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <form method="get" class="row mb-3">
+            <div class="col-md-6">
+                <input type="text" name="searchTerm" class="form-control" placeholder="Tìm vật tư..." value="@Request.QueryString["searchTerm"]" />
+            </div>
+            <div class="col-md-4">
+                <select name="sortSupply" class="form-select">
+                    <option value="asc" @(Request.QueryString["sortSupply"] == "asc" ? "selected" : "")>Giá thấp đến cao</option>
+                    <option value="desc" @(Request.QueryString["sortSupply"] == "desc" ? "selected" : "")>Giá cao đến thấp</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-warning">Lọc</button>
+            </div>
+        </form>
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <h5>Chọn nhân viên</h5>
+                @Html.DropDownList("IdNhanVien", ViewBag.IdNhanVien as SelectList, "Chọn nhân viên", new { @class = "form-select" })
+            </div>
+            <div class="col-md-4">
+                <h5>Tên vật tư</h5>
+                <input id="TenVT" class="form-control" readonly />
+            </div>
+            <div class="col-md-3">
+                <h5>Số lượng</h5>
+                <div class="input-group">
+                    <button class="btn btn-outline-secondary" id="decreaseBtn" disabled>-</button>
+                    <input id="Sl" type="number" class="form-control text-center" value="1" readonly />
+                    <button class="btn btn-outline-secondary" id="increaseBtn" disabled>+</button>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-warning" onclick="distributeSupply()">Cấp phát</button>
+            </div>
+        </div>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Tên vật tư</th>
+                    <th>Số lượng</th>
+                    <th>Đơn vị tính</th>
+                    <th>Giá nhập</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr onclick="handleRowClick(event, @item.IdVatTu, '@item.TenVatTu', @item.SoLuong)" style="cursor: pointer;" data-supply-id="@item.IdVatTu">
+                        <td>@item.TenVatTu</td>
+                        <td>@item.SoLuong</td>
+                        <td>@item.DonViTinh</td>
+                        <td>@String.Format("{0:0,0}", item.GiaNhap)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div id="detailModal" class="modal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background: url('/Contents/image/image_26-hinh-nen-powerpoint-tet.jpg'); background-size: cover">
+                    <div class="modal-header">
+                        <h4 class="modal-title text-dark">Chi tiết vật tư</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="supplyDetailContent">Đang tải...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("DistributeSupplie",
+                new { page, searchTerm = Request.QueryString["searchTerm"], sortSupply = Request.QueryString["sortSupply"] }),
+                new PagedListRenderOptions
+                {
+                    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                    DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                    MaximumPageNumbersToDisplay = 5,
+                    UlElementClasses = new[] { "pagination" },
+                    LiElementClasses = new[] { "page-item" }
+                })
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let maxQuantity = 1;
+            function handleRowClick(event, supplyId, supplyName, availableQuantity) {
+                document.getElementById("TenVT").value = supplyName;
+                maxQuantity = availableQuantity;
+                document.getElementById("Sl").value = 1;
+                document.getElementById("increaseBtn").disabled = maxQuantity <= 1;
+                document.getElementById("decreaseBtn").disabled = true;
+                document.getElementById("TenVT").setAttribute('data-supply-id', supplyId);
+            }
+            document.getElementById("decreaseBtn").addEventListener("click", function () {
+                let quantityInput = document.getElementById("Sl");
+                let quantity = parseInt(quantityInput.value, 10);
+                if (quantity > 1) {
+                    quantity -= 1;
+                    quantityInput.value = quantity;
+                    if (quantity === 1) {
+                        this.disabled = true;
+                    }
+                    document.getElementById("increaseBtn").disabled = false;
+                }
+            });
+            document.getElementById("increaseBtn").addEventListener("click", function () {
+                let quantityInput = document.getElementById("Sl");
+                let quantity = parseInt(quantityInput.value, 10);
+                if (quantity < maxQuantity) {
+                    quantity += 1;
+                    quantityInput.value = quantity;
+                    if (quantity === maxQuantity) {
+                        this.disabled = true;
+                    }
+                    document.getElementById("decreaseBtn").disabled = false;
+                }
+            });
+            window.distributeSupply = function () {
+                let nhanVienId = document.getElementById("IdNhanVien").value;
+                let soLuong = parseInt(document.getElementById("Sl").value);
+                let supplyName = document.getElementById("TenVT").value;
+                let supplyId = document.getElementById("TenVT").getAttribute('data-supply-id');
+                if (!nhanVienId) {
+                    Swal.fire('Vui lòng chọn nhân viên.');
+                    return;
+                }
+                if (!supplyName) {
+                    Swal.fire('Vui lòng chọn vật tư.');
+                    return;
+                }
+                if (soLuong < 1 || soLuong > maxQuantity) {
+                    Swal.fire('Số lượng không hợp lệ.');
+                    return;
+                }
+                fetch(`/Supply/Assign?supplyId=${supplyId}&nhanVienId=${nhanVienId}&soLuong=${soLuong}`, {
+                    method: 'POST'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById("TenVT").value = '';
+                            document.getElementById("Sl").value = 1;
+                            Swal.fire('Thành công!', data.message || 'Cấp phát thành công!', 'success').then(() => {
+                                window.location.href = '/Supply/DistributeSupplie';
+                            });
+                        } else {
+                            Swal.fire('Lỗi!', data.message || 'Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Lỗi!', error.message || 'Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+                    });
+            }
+            window.handleRowClick = handleRowClick;
+        });
+    </script>
+</body>
+</html>

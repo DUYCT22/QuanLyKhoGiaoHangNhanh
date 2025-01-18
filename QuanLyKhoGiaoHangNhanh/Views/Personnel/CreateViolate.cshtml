@@ -1,0 +1,124 @@
+﻿@model QuanLyKhoGiaoHangNhanh.Models.LoiNhanVien
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <style>
+        body {
+            background-color: #FFF5E1;
+        }
+
+        .custom-btn {
+            color: chocolate;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+<body>
+    @using (Html.BeginForm("SaveViolate", "Personnel", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <h4>Ghi lỗi nhân viên</h4>
+            <hr />
+            <div class="form-group">
+                @Html.Label("Nhân viên", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("IdNhanVien", null, "-- Chọn nhân viên --", new { @class = "form-control", id = "IdNhanVien" })
+                    <span class="text-danger" id="IdNhanVienError"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                Mô tả lỗi
+                <div class="col-md-10">
+                    <input type="text" id="MoTaLoi" name="MoTaLoi" class="form-control" maxlength="300" />
+                    <span class="text-danger" id="MoTaLoiError"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                Ngày phát sinh
+                <div class="col-md-10">
+                    <input type="date" id="NgayPhatSinh" class="form-control" />
+                    <span class="text-danger" id="NgayPhatSinhError"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                Chi phí phát sinh
+                <div class="col-md-10">
+                    <input type="number" id="ChiPhiPhatSinh" name="ChiPhiPhatSinh" class="form-control" min="0" max="999999999" />
+                    <span class="text-danger" id="ChiPhiPhatSinhError"></span>
+                </div>
+            </div>
+
+           
+        <div class="form-group d-flex m-2">
+            <div>
+                <button class="btn custom-btn" onclick="history.back()">Quay về</button>
+            </div>
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Thêm" class="btn btn-warning" id="submitButton" />
+            </div>
+        </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#submitButton").click(function (e) {
+                    e.preventDefault();
+                    var isValid = true;
+                    var idNhanVien = $("#IdNhanVien").val();
+                    if (idNhanVien === "" || idNhanVien === null) {
+                        $("#IdNhanVienError").text("Vui lòng chọn nhân viên.");
+                        isValid = false;
+                    } else {
+                        $("#IdNhanVienError").text("");
+                    }
+                    var moTaLoi = $("#MoTaLoi").val().trim();
+                    if (moTaLoi === "") {
+                        $("#MoTaLoiError").text("Mô tả lỗi là bắt buộc.");
+                        isValid = false;
+                    } else if (moTaLoi.length > 300) {
+                        $("#MoTaLoiError").text("Mô tả lỗi không được quá 300 ký tự.");
+                        isValid = false;
+                    } else {
+                        $("#MoTaLoiError").text("");
+                    }
+                    var ngayPhatSinh = $("#NgayPhatSinh").val();
+                    if (ngayPhatSinh === "") {
+                        $("#NgayPhatSinhError").text("Vui lòng chọn ngày phát sinh.");
+                        isValid = false;
+                    } else {
+                        $("#NgayPhatSinhError").text("");
+                    }
+                    var chiPhiPhatSinh = $("#ChiPhiPhatSinh").val();
+                    if (chiPhiPhatSinh === "" || isNaN(chiPhiPhatSinh)) {
+                        $("#ChiPhiPhatSinhError").text("Chi phí phát sinh là bắt buộc.");
+                        isValid = false;
+                    } else if (parseInt(chiPhiPhatSinh) < 0 || chiPhiPhatSinh.length > 9) {
+                        $("#ChiPhiPhatSinhError").text("Chi phí phát sinh phải là số và không quá 9 chữ số.");
+                        isValid = false;
+                    } else {
+                        $("#ChiPhiPhatSinhError").text("");
+                    }
+                    if (isValid) {
+                        $("form").submit();
+                    }
+                });
+            });
+        </script>
+    }
+</body>
+</html>

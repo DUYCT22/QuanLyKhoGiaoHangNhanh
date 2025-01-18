@@ -1,0 +1,30 @@
+﻿
+.card {
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.card-body {
+    display: block;
+}
+
+#map {
+    height: 400px;
+}
+
+button {
+    cursor: pointer;
+}
+
+.row .col-2 {
+    border-right: 1px solid #ccc;
+}
+
+.row .col-2:last-child {
+    border-right: none;
+}

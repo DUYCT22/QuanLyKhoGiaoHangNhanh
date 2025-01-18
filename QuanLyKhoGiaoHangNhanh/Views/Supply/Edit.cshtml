@@ -1,0 +1,204 @@
+﻿@model QuanLyKhoGiaoHangNhanh.Models.VatTu
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <style>
+        body {
+            background-color: #FFF5E1;
+        }
+
+        .custom-btn {
+            color: chocolate;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+    var notification = "@Html.Raw(TempData["Notification"])";
+    var notificationType = "@Html.Raw(TempData["NotificationType"])";
+
+    if (notification && notificationType) {
+        Swal.fire({
+            position: "top-end",
+            text: notification,
+            icon: notificationType,
+            showConfirmButton: false,
+            timer: 1000
+     });
+    }
+});
+    </script>
+</head>
+<body>
+    @using (Html.BeginForm("Update", "Supply", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+
+    <div class="form-horizontal">
+        <h4>Vật tư</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.IdVatTu)
+
+        <div class="form-group">
+            Tên vật tư
+            <div class="col-md-10">
+                @Html.TextBoxFor(
+                                                  model => model.TenVatTu,
+                                                  new { @class = "form-control", id = "TenVatTuInput", type = "text", required = "required" }
+                                              )
+                @Html.ValidationMessageFor(model => model.TenVatTu, "", new { @class = "text-light" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            Loại
+            <div class="col-md-10">
+                @Html.DropDownListFor(
+                                   model => model.Loai,
+                                   new SelectList(new[]
+                                   {
+                   new { Value = "Thiết bị điện tử", Text = "Thiết bị điện tử" },
+                   new { Value = "Văn phòng phẩm", Text = "Văn phòng phẩm" },
+                   new { Value = "Đồ gia dụng", Text = "Đồ gia dụng" },
+                   new { Value = "Thiết bị giao hàng", Text = "Thiết bị giao hàng" }
+                                   }, "Value", "Text"),
+                                   new { @class = "form-control" }
+                               )
+                @Html.ValidationMessageFor(model => model.Loai, "", new { @class = "text-light" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            Số lượng
+            <div class="col-md-10">
+                @Html.TextBoxFor(
+                                                          model => model.SoLuong,
+                                                          new { @class = "form-control", id = "SoLuongInput", type = "number", required = "required" }
+                                                      )
+                @Html.ValidationMessageFor(model => model.SoLuong, "", new { @class = "text-light" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            Đơn vị tính
+            <div class="col-md-10">
+                @Html.DropDownListFor(
+                                   model => model.DonViTinh,
+                                   new SelectList(new[]
+                                   {
+            new { Value = "Cái", Text = "Cái" },
+            new { Value = "Tờ", Text = "Tờ" }
+                                   }, "Value", "Text"),
+                                   new { @class = "form-control" }
+                               )
+                @Html.ValidationMessageFor(model => model.DonViTinh, "", new { @class = "text-light" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            Thông số kỹ thuật
+            <div class="col-md-10">
+                @Html.TextBoxFor(
+                                      model => model.ThongSoKyThuat,
+                                      new { @class = "form-control", id = "ThongSoKyThuatInput", type = "text", required = "required" }
+                                  )
+                @Html.ValidationMessageFor(model => model.ThongSoKyThuat, "", new { @class = "text-light" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            Giá nhập
+            <div class="col-md-10">
+                @Html.TextBoxFor(
+                                      model => model.GiaNhap,
+                                      new { @class = "form-control", id = "GiaNhapInput", type = "number", min = "0", required = "required" }
+                                  )
+                @Html.ValidationMessageFor(model => model.GiaNhap, "", new { @class = "text-light" })
+            </div>
+        </div>
+
+        
+        <div class="form-group">
+            Tình trạng
+            <div class="col-md-10">
+                @Html.DropDownListFor(
+                                        model => model.TinhTrang,
+                                        new SelectList(new[]
+                                        {
+    new { Value = "Lưu kho", Text = "Lưu kho" },
+    new { Value = "Hư hỏng", Text = "Hư hỏng" },
+    new { Value = "Đang sửa chữa", Text = "Đang sửa chữa" }
+                                        }, "Value", "Text"),
+                                        new { @class = "form-control" }
+                                    )
+                @Html.ValidationMessageFor(model => model.TinhTrang, "", new { @class = "text-light" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            Giá khấu hao
+            <div class="col-md-10">
+                @Html.TextBoxFor(
+                                      model => model.GiaKhauHao,
+                                      new { @class = "form-control", id = "GiaKhauHaoInput", type = "number", min = "0", required = "required" }
+                                  )
+                @Html.ValidationMessageFor(model => model.GiaKhauHao, "", new { @class = "text-light" })
+            </div>
+        </div>
+        <div class="form-group d-flex m-2">
+            <div>
+                <button class="btn custom-btn" onclick="history.back()">Quay về</button>
+            </div>
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Lưu" class="btn btn-warning" />
+            </div>
+
+        </div>
+    </div>
+    }
+    <script>$(document).ready(function () {
+            $('#TenVatTuInput').on('input', function () {
+                if ($(this).val().length > 100) {
+                    $(this).val($(this).val().slice(0, 100));
+                    alert("Chỉ được nhập tối đa 100 ký tự!");
+                }
+            });
+            $('#SoLuongInput').on('input', function () {
+                if ($(this).val().length > 1000000) {
+                    $(this).val($(this).val().slice(0, 1000000));
+                    alert("Chỉ được nhập tối đa 1000000 ký tự!");
+                }
+            });
+            $('#ThongSoKyThuatInput').on('input', function () {
+                if ($(this).val().length > 1000) {
+                    $(this).val($(this).val().slice(0, 1000));
+                    alert("Chỉ được nhập tối đa 1000 ký tự!");
+                }
+            });
+            $('#GiaNhapInput').on('input', function () {
+                if ($(this).val().length > 9) {
+                    $(this).val($(this).val().slice(0, 9));
+                    alert("Chỉ được nhập tối đa 9 ký tự!");
+                }
+            });
+            $('#GiaKhauHaoInput').on('input', function () {
+                if ($(this).val().length > 9) {
+                    $(this).val($(this).val().slice(0, 9));
+                    alert("Chỉ được nhập tối đa 9 ký tự!");
+                }
+            });
+        });</script>
+</body>
+</html>

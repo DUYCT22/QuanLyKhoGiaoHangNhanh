@@ -1,0 +1,151 @@
+﻿@model QuanLyKhoGiaoHangNhanh.Models.Xe
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <style>
+        body {
+            background-color: #FFF5E1;
+        }
+
+        .custom-btn {
+            color: chocolate;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>$(document).ready(function () {
+        $("#submitButton").click(function (e) {
+            e.preventDefault();
+            var isValid = true;
+            var idNhanVien = $("#IdNhanVien").val();
+            if (idNhanVien === "" || idNhanVien === null) {
+                $("#IdNhanVienError").text("Vui lòng chọn nhân viên.");
+                isValid = false;
+            } else {
+                $("#IdNhanVienError").text("");
+            }
+            var ten = $("#TenInput").val().trim();
+            if (ten === "") {
+                $("#TenError").text("Tên xe là bắt buộc.");
+                isValid = false;
+            } else if (ten.length > 200) {
+                $("#TenError").text("Tên xe không được quá 200 ký tự.");
+                isValid = false;
+            } else {
+                $("#TenError").text("");
+            }
+            var taiTrong = $("#TaiTrongInput").val().trim();
+            if (taiTrong === "") {
+                $("#TaiTrongError").text("Tải trọng là bắt buộc.");
+                isValid = false;
+            } else if (taiTrong.length > 9) {
+                $("#TaiTrongError").text("Tải trọng không được quá 9 số.");
+                isValid = false;
+            } else {
+                $("#TaiTrongError").text("");
+            }
+            var theTich = $("#TheTichInput").val().trim();
+            if (theTich === "") {
+                $("#TheTichError").text("Thể tích là bắt buộc.");
+                isValid = false;
+            } else if (theTich.length > 9) {
+                $("#TheTichError").text("Thể tích không được quá 9 số.");
+                isValid = false;
+            } else {
+                $("#TheTichError").text("");
+            }
+            var tSKT = $("#ThongSoKyThuatInput").val().trim();
+            if (tSKT === "") {
+                $("#ThongSoKyThuatError").text("Thông số là bắt buộc.");
+                isValid = false;
+            } else if (tSKT.length > 300) {
+                $("#ThongSoKyThuatError").text("Thông số không được quá 300 ký tự.");
+                isValid = false;
+            } else {
+                $("#ThongSoKyThuatError").text("");
+            }
+            if (isValid) {
+                $("form").submit();
+            }
+        });
+    });</script>
+</head>
+<body>
+    @using (Html.BeginForm("Save", "Car", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <h2>Thêm xe</h2>
+        </div>
+        <hr />
+        @Html.HiddenFor(model => model.Id)
+        <div class="form-group">
+            @Html.Label("Nhân viên", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("IdNhanVienGiaoHang", ViewBag.IdNhanVienGiaoHang as SelectList, "Chọn nhân viên", new { @class = "form-select" })
+                <span class="text-danger" id="IdNhanVienError"></span>
+            </div>
+        </div>
+
+
+
+
+        <div class="form-group">
+            <label for="TenInput">Tên xe</label>
+            @Html.TextBoxFor(
+                                        model => model.Ten,
+                                        new { @class = "form-control", id = "TenInput", required = "required" }
+                                       )
+            @Html.ValidationMessageFor(model => model.Ten, "", new { @class = "text-light" })
+            <span class="text-danger" id="TenError"></span>
+        </div>
+        <div class="form-group">
+            <label for="TenInput">Tải trọng</label>
+            @Html.TextBoxFor(
+                                       model => model.TaiTrong,
+                                       new { @class = "form-control", id = "TaiTrongInput", type = "number", step = "0.01", required = "required" }
+                                      )
+            @Html.ValidationMessageFor(model => model.Ten, "", new { @class = "text-light" })
+            <span class="text-danger" id="TaiTrongError"></span>
+        </div>
+        <div class="form-group">
+            <label for="TenInput">Thể tích</label>
+            @Html.TextBoxFor(
+                                  model => model.TheTich,
+                                  new { @class = "form-control", id = "TheTichInput", type = "number", step = "0.01", required = "required" }
+                                 )
+            @Html.ValidationMessageFor(model => model.TheTich, "", new { @class = "text-light" })
+            <span class="text-danger" id="TheTichpError"></span>
+        </div>
+        <div class="form-group">
+            <label for="TenInput">Thông số kỹ thuật</label>
+            @Html.TextBoxFor(
+                             model => model.ThongSoKyThuat,
+                             new { @class = "form-control", id = "ThongSoKyThuatInput", required = "required" }
+                            )
+            @Html.ValidationMessageFor(model => model.ThongSoKyThuat, "", new { @class = "text-light" })
+            <span class="text-danger" id="ThongSoKyThuatError"></span>
+        </div>
+        <div class="row m-1">
+            <div class="col-2">
+                <button class="btn custom-btn" onclick="history.back()">Quay về</button>
+            </div>
+
+            <div class="col-2">
+                <input type="submit" value="Lưu" class="btn btn-warning" id="submitButton" />
+            </div>
+        </div>
+
+
+    }
+</body>
+</html>

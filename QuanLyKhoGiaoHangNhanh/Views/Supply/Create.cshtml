@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <style>
+        body {
+            background-color: #FFF5E1;
+        }
+
+        h1 {
+            color: orange
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4"><i class="bi bi-file-earmark-spreadsheet"></i>Nhập File Excel</h1>
+        @using (Html.BeginForm("ImportExcel", "Supply", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <div class="row">
+                <div class="col-3">
+                    <input type="file" name="file" id="fileUpload" class="form-control" accept=".xlsx,.xls" required />
+                </div>
+                <div class="col-3">
+                    <button type="submit" class="btn btn-primary">Tải lên</button>
+                </div>
+            </div>
+        }
+        @{
+            var previewData = Session["PreviewData"] as List<NguyenNhutDuy_2122110447.Models.PreviewItemSupply>;
+        }
+        <br />
+        @if (previewData != null && previewData.Any())
+        {
+            <div class="row">
+                <div class="col-3">
+                    <h3>Dữ liệu xem trước</h3>
+                </div>
+                <div class="col-3">
+                    <form action="ConfirmImport" method="post">
+                        <button type="submit" class="btn btn-success">Xác nhận thêm</button>
+                    </form>
+                </div>
+            </div>
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Id vật tư</th>
+                        <th>Tên vật tư</th>
+                        <th>Loại</th>
+                        <th>Số lượng</th>
+                        <th>Đơn vị tính</th>
+                        <th>Thông số kỹ thuật</th>
+                        <th>Giá nhập</th>
+                        <th>Ngày nhập</th>
+                        <th>Tình trạng</th>
+                        <th>Giá khấu hao</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in previewData)
+                    {
+                        <tr>
+                            <td>@row.IdVatTu</td>
+                            <td>@row.TenVatTu</td>
+                            <td>@row.Loai</td>
+                            <td>@row.SoLuong</td>
+                            <td>@row.DonViTinh</td>
+                            <td>@row.ThongSoKyThuat</td>
+                            <td>@row.GiaNhap</td>
+                            <td>@row.NgayNhap</td>
+                            <td>@row.TinhTrang</td>
+                            <td>@row.GiaKhauHao</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        }
+        @if (!string.IsNullOrEmpty(ViewBag.Message))
+        {
+            <div class="alert alert-success mt-3">@ViewBag.Message</div>
+        }
+
+        @if (ViewData.ModelState.IsValid == false)
+        {
+            <div class="alert alert-danger mt-3">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p>@error.ErrorMessage</p>
+                }
+            </div>
+        }
+    </div>
+</body>
+</html>

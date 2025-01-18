@@ -1,0 +1,164 @@
+﻿@model QuanLyKhoGiaoHangNhanh.Models.NhanVien
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <style>
+        body {
+            background-color: #FFF5E1;
+        }
+
+        .custom-btn {
+            color: chocolate;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+
+
+</head>
+<body>
+    @using (Html.BeginForm("Save", "Personnel", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <h4>Thêm nhân viên</h4>
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-light" })
+        <div class="form-group">
+            Tên nhân viên
+            <div class="col-md-10">
+                @Html.TextBoxFor(
+                    model => model.TenNhanVien,
+                    new { @class = "form-control", id = "TenInput", type = "text", required = "required" }
+                )
+                @Html.ValidationMessageFor(model => model.TenNhanVien, "", new { @class = "text-light" })
+            </div>
+        </div>
+
+            <div class="form-group">
+                Thường trú
+                <div class="col-md-10">
+                    @Html.TextBoxFor(
+                        model => model.ThuongTru,
+                        new { @class = "form-control", id = "ThuongTruInput", type = "text", required = "required" }
+                    )
+                    @Html.ValidationMessageFor(model => model.ThuongTru, "", new { @class = "text-light" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.Sdt, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(
+                        model => model.Sdt,
+                        new { @class = "form-control", id = "SdtInput", type = "number", min = "0", required = "required" }
+                    )
+                    @Html.ValidationMessageFor(model => model.Sdt, "", new { @class = "text-light" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Gmail, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(
+                         model => model.Gmail,
+                        new { @class = "form-control", id = "GmailInput", type = "email", required = "required" }
+                    )
+                    @Html.ValidationMessageFor(model => model.Gmail, "", new { @class = "text-light" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                Khối
+                <div class="col-md-10">
+                    @Html.DropDownListFor(
+                        model => model.Khoi,
+                        new SelectList(new[]
+                        {
+                            new { Value = "Văn phòng", Text = "Văn phòng" },
+                            new { Value = "Giao hàng", Text = "Giao hàng" }
+                        }, "Value", "Text"),
+                        new { @class = "form-control" }
+                    )
+                    @Html.ValidationMessageFor(model => model.Khoi, "", new { @class = "text-light" })
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                Lương
+                <div class="col-md-10">
+                    @Html.TextBoxFor(
+                        model => model.Luong,
+                        new { @class = "form-control", id = "LuongInput", type = "number", min = "0", required = "required" }
+                    )
+                    @Html.ValidationMessageFor(model => model.Luong, "", new { @class = "text-light" })
+                </div>
+            </div>
+
+            <div class="form-group d-flex m-2">
+                <div>
+                    <button class="btn custom-btn" onclick="history.back()">Quay về</button>
+                </div>
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Thêm" class="btn btn-warning" />
+                </div>
+            </div>
+        </div>
+    }
+
+    
+    <script>
+        $(document).ready(function () {
+            // Giới hạn ký tự cho Tên nhân viên (50 ký tự)
+            $('#TenInput').on('input', function () {
+                if ($(this).val().length > 50) {
+                    $(this).val($(this).val().slice(0, 50));
+                    alert("Chỉ được nhập tối đa 50 ký tự!");
+                }
+            });
+
+            // Giới hạn ký tự cho Thường trú (200 ký tự)
+            $('#ThuongTruInput').on('input', function () {
+                if ($(this).val().length > 200) {
+                    $(this).val($(this).val().slice(0, 200));
+                    alert("Chỉ được nhập tối đa 200 ký tự!");
+                }
+            });
+
+            // Giới hạn ký tự cho Số điện thoại (11 ký tự)
+            $('#SdtInput').on('input', function () {
+                if ($(this).val().length > 11) {
+                    $(this).val($(this).val().slice(0, 11));
+                    alert("Chỉ được nhập tối đa 11 ký tự!");
+                }
+            });
+
+            // Giới hạn ký tự cho Gmail (100 ký tự)
+            $('#GmailInput').on('input', function () {
+                if ($(this).val().length > 100) {
+                    $(this).val($(this).val().slice(0, 100));
+                    alert("Chỉ được nhập tối đa 100 ký tự!");
+                }
+            });
+
+            // Giới hạn ký tự cho Lương (9 ký tự)
+            $('#LuongInput').on('input', function () {
+                if ($(this).val().length > 9) {
+                    $(this).val($(this).val().slice(0, 9));
+                    alert("Chỉ được nhập tối đa 9 ký tự!");
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

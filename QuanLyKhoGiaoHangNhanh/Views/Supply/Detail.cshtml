@@ -1,0 +1,14 @@
+﻿@model QuanLyKhoGiaoHangNhanh.Models.VatTu
+
+<div style="color:black">
+    <p><strong>Tên vật tư:</strong> @Model.TenVatTu</p>
+    <p><strong>Loại:</strong> @Model.Loai</p>
+    <p><strong>Số lượng:</strong> @Model.SoLuong</p>
+    <p><strong>Đơn vị tính:</strong> @Model.DonViTinh kg</p>
+    <p><strong>Thông số kỹ thuật:</strong> @Model.ThongSoKyThuat</p>
+    <p><strong>Giá nhập:</strong> @String.Format("{0:0,0}", Model.GiaNhap) VND</p>
+    <p><strong>Ngày nhập:</strong> @Model.NgayNhap</p>
+    <p><strong>Tình trạng:</strong> @Model.TinhTrang</p>
+    <p><strong>GIá khấu hao:</strong> @String.Format("{0:0,0}", Model.GiaKhauHao) VND</p>
+
+</div>

@@ -1,0 +1,118 @@
+﻿@model QuanLyKhoGiaoHangNhanh.Models.TaiKhoan
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <style>
+        body {
+            background-color: #FFF5E1;
+        }
+
+        .custom-btn {
+            color: chocolate;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+    var notification = "@Html.Raw(TempData["Notification"])";
+    var notificationType = "@Html.Raw(TempData["NotificationType"])";
+
+    if (notification && notificationType) {
+        Swal.fire({
+            position: "top-end",
+            text: notification,
+            icon: notificationType,
+            showConfirmButton: false,
+            timer: 1000
+        });
+    }
+});
+    </script>
+</head>
+<body>
+    @using (Html.BeginForm("Update", "Account", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <h2>Sửa tài khoản</h2>
+
+
+        </div>
+        <hr />
+        @Html.HiddenFor(model => model.Id)
+        <div class="form-group">
+            @Html.Label("Nhân viên", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(
+                                                        model => model.IdNhanVien, // Giá trị sẽ được gán
+                                                        null, // Sử dụng trực tiếp SelectList từ Controller
+                                                        new { @class = "form-control" }
+                                                    )
+                <span class="text-danger" id="IdNhanVienError"></span>
+            </div>
+        </div>
+
+
+
+
+        <div class="form-group">
+            <label for="TenInput">Tên đăng nhập</label>
+            @Html.TextBoxFor(
+                                                                                                                                                            model => model.TenDangNhap,
+                                                                                                                                                            new { @class = "form-control", id = "TenDangNhapInput", required = "required" }
+                                                                                                                                                        )
+            @Html.ValidationMessageFor(model => model.TenDangNhap, "", new { @class = "text-light" })
+            <span class="text-danger" id="TenDangNhapError"></span>
+        </div>
+
+
+            <div class="row m-1">
+                <div class="col-2">
+                    <button class="btn custom-btn" onclick="history.back()">Quay về</button>
+                </div>
+
+                <div class="col-2">
+                    <input type="submit" value="Lưu" class="btn btn-warning" id="submitButton" />
+                </div>
+            </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#submitButton").click(function (e) {
+                    e.preventDefault();
+                    var isValid = true;
+                    var idNhanVien = $("#IdNhanVien").val();
+                    if (idNhanVien === "" || idNhanVien === null) {
+                        $("#IdNhanVienError").text("Vui lòng chọn nhân viên.");
+                        isValid = false;
+                    } else {
+                        $("#IdNhanVienError").text("");
+                    }
+                    var moTaLoi = $("#TenDangNhapInput").val().trim();
+                    if (moTaLoi === "") {
+                        $("#TenDangNhapError").text("Tên đăng nhập là bắt buộc.");
+                        isValid = false;
+                    } else if (moTaLoi.length > 300) {
+                        $("#TenDangNhapError").text("Tên đăng nhập không được quá 100 ký tự.");
+                        isValid = false;
+                    } else {
+                        $("#TenDangNhapError").text("");
+                    }
+                    if (isValid) {
+                        $("form").submit();
+                    }
+                });
+            });</script>
+    }
+</body>
+</html>

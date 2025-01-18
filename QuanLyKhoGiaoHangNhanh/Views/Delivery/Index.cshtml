@@ -1,0 +1,228 @@
+﻿@using PagedList
+@using PagedList.Mvc
+@model IPagedList<QuanLyKhoGiaoHangNhanh.Models.GiaoHang>
+@{
+    var points = Model.Select(item => item.DonHang.DiaChi.ToString()).ToList();
+    var pointsJson = Newtonsoft.Json.JsonConvert.SerializeObject(points);
+    var index = 1;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <title>Quản Lý Giao hàng</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="~/Contents/css/General.css" />
+    <script>
+        function handleRowClick(event, orderId) {
+            if (event.target.closest('.btn')) {
+                return;
+            }
+            var modal = new bootstrap.Modal(document.getElementById('detailModal'));
+            modal.show();
+            fetch(`/Order/Detail/${orderId}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('orderDetailContent').innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Error loading order details:', error);
+                    document.getElementById('orderDetailContent').innerHTML = 'Không thể tải chi tiết đơn hàng.';
+                });
+        }
+                function confirmDelete(url) {
+            Swal.fire({
+                title: 'Bạn có chắc chắn muốn xóa?',
+                text: "Thao tác này không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        }
+            document.addEventListener("DOMContentLoaded", function () {
+            var notification = "@Html.Raw(TempData["Notification"])";
+            var notificationType = "@Html.Raw(TempData["NotificationType"])";
+
+            if (notification && notificationType) {
+                Swal.fire({
+                    position: "top-end",
+                    text: notification,
+                    icon: notificationType,
+                    showConfirmButton: false,
+                    timer: 1000
+             });
+            }
+        });
+    </script>
+</head>
+<body>
+    @if (Model.Count == 0)
+    {
+        <h1 class="flex-grow-1 text-center">
+            Quản Lý giao hàng không có dữ liệu
+        </h1>
+    }
+    else
+    {
+        <div class="container">
+            <div class="header d-flex justify-content-between align-items-center">
+                <h1 class="flex-grow-1 text-center">
+                    Quản Lý giao hàng
+                </h1>
+                <form class="d-flex flex-grow-1 justify-content-center" method="get">
+                    <div class="col-md-5 px-2 align-content-center">
+                        <input type="text" name="searchTerm" class="form-control" placeholder="Tìm kiếm theo tên người nhận..." value="@Request.QueryString["searchTerm"]" />
+                    </div>
+                    <div class="col-md-5 px-2 align-content-center">
+                        <select name="sortDelivery" class="form-select">
+                            <option value="asc" @(Request.QueryString["sortDelivery"] == "asc" ? "selected" : "")>Tổng tiền: Thấp đến Cao</option>
+                            <option value="desc" @(Request.QueryString["sortDelivery"] == "desc" ? "selected" : "")>Tổng tiền: Cao đến Thấp</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 px-2 align-content-center">
+                        <button type="submit" class="btn btn-warning">Lọc</button>
+                    </div>
+                </form>
+                <div class="action-buttons">
+                    <button class="btn btn-import" onclick="window.location.href='@Url.Action("ExportToExcel", "Delivery")'">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Xuất Excel
+                    </button>
+                    <button class="btn btn-import" onclick="confirmDelete('@Url.Action("Delete", "Delivery")')">
+                        <i class="bi bi-trash3"></i> Xóa dữ liệu
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        if (!string.IsNullOrEmpty(Request.QueryString["searchTerm"]))
+        {
+            <p class="text-muted text-">Kết quả tìm kiếm cho: <b>@Request.QueryString["searchTerm"]</b></p>
+        }
+        <div class="row">
+            <div class="col-4">
+                <div id="map" style="height: 400px; width: 100%;"></div>
+            </div>
+            <div class="col-8">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Stt</th>
+                            <th>Nhân viên giao hàng</th>
+                            <th>Tên người nhận</th>
+                            <th>Sdt</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr onclick="handleRowClick(event, @item.IdDonHang)" style="cursor: pointer">
+                                <td>@index</td>
+                                <td>@item.Xe.NhanVien.TenNhanVien</td>
+                                <td>@Html.DisplayFor(modelItem => item.DonHang.TenNguoiNhan)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DonHang.Sdt)</td>
+                                <td>@String.Format("{0:0,0}", item.DonHang.TongTien)</td>
+                                @if (item.TrangThai == "Đang giao")
+                                {
+                                    <td style="color:blue">@Html.DisplayFor(modelItem => item.TrangThai)</td>
+                                }
+                                @if (item.TrangThai == "Đã giao")
+                                {
+                                    <td style="color:forestgreen">@Html.DisplayFor(modelItem => item.TrangThai)</td>
+                                }
+                                <td>@Html.DisplayFor(modelItem => item.DonHang.GhiChu)</td>
+                            </tr>
+                            index++;
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+        <div id="detailModal" class="modal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background: url('/Contents/image/image_26-hinh-nen-powerpoint-tet.jpg'); background-size: cover">
+                    <div class="modal-header">
+                        <h4 class="modal-title text-dark">Chi tiết đơn hàng</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="orderDetailContent">Đang tải...</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("Index",
+                              new
+                              {
+                                  page = page,
+                                  searchTerm = Request.QueryString["searchTerm"],
+                                  sortDelivery = Request.QueryString["sortDelivery"]
+                              }),
+                              new PagedListRenderOptions
+                              {
+                                  DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                                  DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                                  DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                                  DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                                  MaximumPageNumbersToDisplay = 5,
+                                  DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                                  UlElementClasses = new[] { "pagination" },
+                                  LiElementClasses = new[] { "page-item" },
+                              })
+
+        </div>
+        <script>
+    // Dữ liệu tọa độ từ View (JSON)
+    var points = @Html.Raw(pointsJson);
+    var khuVucs = @Html.Raw(ViewBag.Area);
+    // Khởi tạo bản đồ
+    var map = L.map('map').setView([10.845, 106.75], 12);
+
+    // Thêm lớp nền bản đồ từ OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+            khuVucs.forEach(function (kv) {
+                // Chuyển tọa độ từ chuỗi JSON thành mảng
+                var toaDo = JSON.parse(kv.ToaDo);
+
+                // Tạo polygon trên bản đồ
+                var polygon = L.polygon(toaDo, { color: 'blue' }).addTo(map);
+
+                // Gắn popup hiển thị tên khu vực
+                polygon.bindPopup('<b>Khu vực:</b> ' + kv.Ten);
+            });
+    // Vẽ các điểm (marker) trên bản đồ
+    points.forEach(function (point, index) {
+        // Chuyển đổi tọa độ từ chuỗi "lat,lng" thành mảng [lat, lng]
+        var coords = point.split(',');
+        var lat = parseFloat(coords[0]);
+        var lng = parseFloat(coords[1]);
+
+        // Thêm marker vào bản đồ
+        L.marker([lat, lng]).addTo(map)
+            .bindPopup("Đơn " + (index + 1)) // Hiển thị số thứ tự (index + 1)
+            .openPopup(); // Mở popup ngay khi thêm
+    });
+        </script>
+    }
+</body>
+</html>

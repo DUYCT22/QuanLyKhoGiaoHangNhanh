@@ -1,0 +1,421 @@
+﻿@model QuanLyKhoGiaoHangNhanh.Models.DonHang
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <style>
+        body {
+            background-color: #FFF5E1;
+        }
+
+        .custom-btn {
+            color: chocolate;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+    <!-- Thêm Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Thêm Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+</head>
+<body>
+    @using (Html.BeginForm("Update", "Order", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+
+
+
+
+    <div class="form-horizontal">
+        <h2>Đơn hàng</h2>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="row">
+            <div class="col-md-6">
+
+                <div id="map" style="height: 400px; width: 100%;"></div>
+
+
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="DiaChiInput">Địa chỉ</label>
+                    <input type="text" id="DiaChiInput" name="DiaChi" class="form-control" placeholder="Click on map to get coordinates" required readonly />
+                    @Html.ValidationMessageFor(model => model.DiaChi, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <label for="TenInput">Tên</label>
+                    @Html.TextBoxFor(
+                                                                          model => model.Ten,
+                                                                          new { @class = "form-control", id = "TenInput", required = "required" }
+                                                                      )
+                    @Html.ValidationMessageFor(model => model.Ten, "", new { @class = "text-light" })
+                </div>
+
+                <div class="form-group">
+                    <label for="Loai">Loại</label>
+                    @Html.DropDownListFor(
+                                                                          model => model.Loai,
+                                                                          new SelectList(new[]
+                                                                          {
+                new { Value = "Thực phẩm", Text = "Thực phẩm" },
+                new { Value = "Văn phòng phẩm", Text = "Văn phòng phẩm" },
+                new { Value = "Thời trang", Text = "Thời trang" },
+                new { Value = "Thiết bị điện tử", Text = "Thiết bị điện tử" },
+                new { Value = "Đồ gia dụng", Text = "Đồ gia dụng" }
+          }, "Value", "Text"),
+                                                                          new { @class = "form-control" }
+                                                                      )
+                    @Html.ValidationMessageFor(model => model.Loai, "", new { @class = "text-light" })
+                </div>
+
+                <div class="form-group">
+                    <label for="CanNangInput">Cân nặng (kg)</label>
+                    @Html.TextBoxFor(
+                                                                          model => model.CanNang,
+                                                                          new { @class = "form-control", id = "CanNangInput", type = "number", step = "0.01", required = "required" }
+                                                                      )
+                    @Html.ValidationMessageFor(model => model.CanNang, "", new { @class = "text-light" })
+                </div>
+
+                <div class="form-group">
+                    <label for="TheTichInput">Thể tích (m³)</label>
+                    @Html.TextBoxFor(
+                                                                          model => model.TheTich,
+                                                                          new { @class = "form-control", id = "TheTichInput", type = "number", step = "0.01", required = "required" }
+                                                                      )
+                    @Html.ValidationMessageFor(model => model.TheTich, "", new { @class = "text-light" })
+                </div>
+                <div class="form-group">
+                    <label for="TrangThai">Trạng thái</label>
+                    @Html.DropDownListFor(
+                                                                          model => model.TrangThai,
+                                                                          new SelectList(new[]
+                                                                          {
+                new { Value = "Lưu kho", Text = "Lưu kho" },
+                new { Value = "Đang giao", Text = "Đang giao" },
+                new { Value = "Đã giao", Text = "Đã giao" }
+          }, "Value", "Text"),
+                                                                          new { @class = "form-control" }
+                                                                      )
+                    @Html.ValidationMessageFor(model => model.TrangThai, "", new { @class = "text-light" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="TenNguoiNhanInput">Tên người nhận</label>
+                    @Html.TextBoxFor(
+                                                                model => model.TenNguoiNhan,
+                                                                new { @class = "form-control", id = "TenNguoiNhanInput", required = "required" }
+                                                            )
+                    @Html.ValidationMessageFor(model => model.TenNguoiNhan, "", new { @class = "text-light" })
+                </div>
+
+                <div class="form-group">
+                    <label for="SdtInput">Số điện thoại</label>
+                    @Html.TextBoxFor(
+                                                                model => model.Sdt,
+                                                                new { @class = "form-control", id = "SdtInput", type = "number", min = "0", required = "required" }
+                                                            )
+                    @Html.ValidationMessageFor(model => model.Sdt, "", new { @class = "text-light" })
+                </div>
+
+                <div class="form-group">
+                    <label for="GiaTriDonHangInput">Giá trị đơn hàng</label>
+                    @Html.TextBoxFor(
+                                                                model => model.GiaTriDonHang,
+                                                                new { @class = "form-control", id = "GiaTriDonHangInput", type = "number", min = "0", required = "required" }
+                                                            )
+                    @Html.ValidationMessageFor(model => model.GiaTriDonHang, "", new { @class = "text-light" })
+                </div>
+
+                <div class="form-group">
+                    <label for="GiaTriDonHangInput">Phí vận chuyển</label>
+                    @Html.TextBoxFor(
+                                                                model => model.PhiVanChuyen,
+                                                                new { @class = "form-control", id = "PhiVanChuyenInput", type = "number", min = "0", required = "required" }
+                                                            )
+                    @Html.ValidationMessageFor(model => model.PhiVanChuyen, "", new { @class = "text-light" })
+                </div>
+
+                <div class="form-group">
+                    <label for="TongTienInput">Tổng tiền</label>
+                    @Html.TextBoxFor(
+                                                                model => model.TongTien,
+                                                                new { @class = "form-control", id = "TongTienInput", type = "number", min = "0", required = "required" }
+                                                            )
+                    @Html.ValidationMessageFor(model => model.TongTien, "", new { @class = "text-light" })
+                </div>
+
+                <div class="form-group">
+                    <label for="GhiChuInput">Ghi chú</label>
+                    @Html.TextBoxFor(
+                                                                model => model.GhiChu,
+                                                                new { @class = "form-control", id = "GhiChuInput" }
+                                                            )
+                    @Html.ValidationMessageFor(model => model.GhiChu, "", new { @class = "text-light" })
+                </div>
+            </div>
+        </div>
+
+        <div class="row m-1">
+            <div class="col-2">
+                <button class="btn custom-btn" onclick="history.back()">Quay về</button>
+            </div>
+
+            <div class="col-2">
+                <input type="submit" value="Lưu" class="btn btn-warning" id="submitButton" />
+            </div>
+        </div>
+    </div>
+    }
+    <script>
+        $(document).ready(function () {
+            $('#TenInput').on('input', function () {
+                if ($(this).val().length > 100) {
+                    $(this).val($(this).val().slice(0, 100));
+                    alert("Chỉ được nhập tối đa 100 ký tự!");
+                }
+            });
+            $('#LoaiInput').on('input', function () {
+                if ($(this).val().length > 20) {
+                    $(this).val($(this).val().slice(0, 20));
+                    alert("Chỉ được nhập tối đa 20 ký tự!");
+                }
+            });
+            $('#CanNangInput').on('input', function () {
+                if ($(this).val().length > 5) {
+                    $(this).val($(this).val().slice(0, 5));
+                    alert("Chỉ được nhập tối đa 5 ký tự!");
+                }
+            });
+            $('#TheTichInput').on('input', function () {
+                if ($(this).val().length > 5) {
+                    $(this).val($(this).val().slice(0, 5));
+                    alert("Chỉ được nhập tối đa 5 ký tự!");
+                }
+            });
+            $('#TenNguoiNhanInput').on('input', function () {
+                if ($(this).val().length > 100) {
+                    $(this).val($(this).val().slice(0, 100));
+                    alert("Chỉ được nhập tối đa 100 ký tự!");
+                }
+            });
+            $('#SdtInput').on('input', function () {
+                if ($(this).val().length > 10) {
+                    $(this).val($(this).val().slice(0, 10));
+                    alert("Chỉ được nhập tối đa 10 ký tự!");
+                }
+            });
+            $('#GiaTriDonHangInput').on('input', function () {
+                if ($(this).val().length > 9) {
+                    $(this).val($(this).val().slice(0, 9));
+                    alert("Chỉ được nhập tối đa 9 ký tự!");
+                }
+            });
+            $('#PhiVanChuyenInput').on('input', function () {
+                if ($(this).val().length > 9) {
+                    $(this).val($(this).val().slice(0, 9));
+                    alert("Chỉ được nhập tối đa 9 ký tự!");
+                }
+            });
+            $('#GhiChuInput').on('input', function () {
+                if ($(this).val().length > 100) {
+                    $(this).val($(this).val().slice(0, 100));
+                    alert("Chỉ được nhập tối đa 100 ký tự!");
+                }
+            });
+        });
+    var thuDucBounds = [
+        [10.814025447108829, 106.7568923684239],
+        [10.823478578339685, 106.75897365696252],
+        [10.849761804464206, 106.77425582609602],
+        [10.86780071760746, 106.8033199782154],
+        [10.87353207574643, 106.80830853773796],
+        [10.873932785677791, 106.80110945308142],
+        [10.872046496992594, 106.79757980890214],
+        [10.8732532870904, 106.7975527276378],
+        [10.873716699891792, 106.7939958208916],
+        [10.872588845384529, 106.79193626996613],
+        [10.872225287381122, 106.78850344787652],
+        [10.867475093364753, 106.78769054113023],
+        [10.86856016577938, 106.78030326996605],
+        [10.87767935995526, 106.78181579170801],
+        [10.882019994898755, 106.7808612665741],
+        [10.894378163313371, 106.7692634358874],
+        [10.882314315061738, 106.76007908006645],
+        [10.87907053384544, 106.76192591075323],
+        [10.878764606231606, 106.76128180890228],
+        [10.874712711319441, 106.76125931612495],
+        [10.872457962769873, 106.76036882276195],
+        [10.869887107151154, 106.763083218257],
+        [10.867401951509905, 106.76212631484026],
+        [10.867328196510348, 106.75748072886392],
+        [10.866516890360904, 106.75486289280866],
+        [10.865874165752972, 106.75343595764096],
+        [10.865463242717794, 106.753468144147],
+        [10.863866959449629, 106.75175153024988],
+        [10.86451495664352, 106.75120972403958],
+        [10.86445173746701, 106.7500134588426],
+        [10.869435474843206, 106.74794815788229],
+        [10.873913392051112, 106.74647830734806],
+        [10.879508232271874, 106.7424846932165],
+        [10.88098233685878, 106.73430680796662],
+        [10.884859540047842, 106.73675298246937],
+        [10.886208120621838, 106.73186063332297],
+        [10.89139167036906, 106.73293351690769],
+        [10.896364421974262, 106.71761273926502],
+        [10.889916685788027, 106.71306371286572],
+        [10.880982336966259, 106.7173552472047],
+        [10.872458586336805, 106.71514505541478],
+        [10.869297695189134, 106.71566003955671],
+        [10.866726812406862, 106.71432966391163],
+        [10.862722934250622, 106.71784872193291],
+        [10.85640091240599, 106.71943658963833],
+        [10.855010049577444, 106.71913618223543],
+        [10.852439043790895, 106.71699041506598],
+        [10.850458089820345, 106.71390051034193],
+        [10.850036608558366, 106.71106809767824],
+        [10.850753126350142, 106.70437330410944],
+        [10.849615126702107, 106.69999593908373],
+        [10.84822423236046, 106.69922346290272],
+        [10.843672169279301, 106.69922346290272],
+        [10.837391894237784, 106.70772070088789],
+        [10.831111487462056, 106.70978063739096],
+        [10.823692850812812, 106.71171182785794],
+        [10.821795841331825, 106.71669382654224],
+        [10.821627232754158, 106.72068495347746],
+        [10.82335546617882, 106.72598499838605],
+        [10.824936158827475, 106.7289890726296],
+        [10.828750862566615, 106.73265833448941],
+        [10.835516046500935, 106.73701424195116],
+        [10.837012374951868, 106.74066204618596],
+        [10.835347445698632, 106.74604792197447],
+        [10.833345303287322, 106.74995321822291],
+        [10.828266123961802, 106.75235647754614],
+        [10.822997174660385, 106.7524423082966],
+        [10.813702522403023, 106.75244230829615],
+        [10.814025447108829, 106.7568923684239]  // Trở lại điểm đầu tiên
+    ];
+
+    $(document).ready(function () {
+        // Kiểm tra xem DiaChi đã có trong model hay chưa
+        var diaChi = '@Model.DiaChi'; // Lấy DiaChi từ model (chuỗi "lat, lng")
+        var lat = 10.855830370114582;
+        var lng = 106.74539566040039;
+
+        if (diaChi) {
+            var coords = diaChi.split(', ');
+            lat = parseFloat(coords[0]);
+            lng = parseFloat(coords[1]);
+        }
+
+        // Khởi tạo bản đồ tại vị trí mặc định
+        var map = L.map('map', {
+            center: [lat, lng], // Tọa độ từ DiaChi
+            zoom: 13,
+            maxBounds: L.latLngBounds(
+                [10.808980729305134, 106.67246078849804], // Góc trái dưới (lat, lng)
+                [10.897322334618643, 106.82867263890768]  // Góc phải trên (lat, lng)
+            ),
+            maxBoundsViscosity: 1.0
+        });
+
+        // Thêm Tile Layer cho bản đồ
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Tạo polygon (đường biên giới) bao quanh khu vực Thủ Đức
+        var thuDucPolygon = L.polygon(thuDucBounds, {
+            color: 'red', // Màu đường biên giới
+            weight: 2, // Độ dày của đường biên giới
+            fillColor: 'rgba(255, 0, 0, 0.2)', // Màu nền với độ trong suốt
+            fillOpacity: 0.5 // Độ trong suốt của nền
+        }).addTo(map);
+
+        // Biến marker để tạo điểm đánh dấu
+        var marker;
+
+        // Lắng nghe sự kiện click trên Polygon
+        thuDucPolygon.on('click', function (e) {
+            var newLat = e.latlng.lat;
+            var newLng = e.latlng.lng;
+            console.log(`Vị trí clicked trong Polygon: ${newLat}, ${newLng}`); // Kiểm tra tọa độ click
+
+            // Kiểm tra nếu vị trí mới khác vị trí cũ
+            if (lat !== newLat || lng !== newLng) {
+                // Hiển thị hộp thoại xác nhận
+                var confirmChange = confirm("Bạn có chắc muốn thay đổi vị trí không?");
+                if (confirmChange) {
+                    // Cập nhật tọa độ mới
+                    lat = newLat;
+                    lng = newLng;
+
+                    // Cập nhật tọa độ vào ô input
+                    document.getElementById('DiaChiInput').value = lat + ', ' + lng;
+
+                    // Nếu đã có marker, xóa nó đi
+                    if (marker) {
+                        map.removeLayer(marker);
+                    }
+
+                    // Tạo marker mới tại vị trí đã chọn
+                    marker = L.marker([lat, lng]).addTo(map);
+                }
+            }
+        });
+
+        // Đặt marker tại vị trí đã lưu
+        marker = L.marker([lat, lng]).addTo(map);
+
+        // Cập nhật ô input với tọa độ
+        document.getElementById('DiaChiInput').value = lat + ', ' + lng;
+
+        // Lắng nghe sự kiện click trên bản đồ
+        map.on('click', function (e) {
+            var newLat = e.latlng.lat;
+            var newLng = e.latlng.lng;
+
+            // Kiểm tra nếu vị trí mới khác vị trí cũ
+            if (lat !== newLat || lng !== newLng) {
+                // Hiển thị hộp thoại xác nhận
+                var confirmChange = confirm("Bạn có chắc muốn thay đổi vị trí không?");
+                if (confirmChange) {
+                    // Cập nhật tọa độ mới
+                    lat = newLat;
+                    lng = newLng;
+
+                    // Cập nhật tọa độ vào ô input
+                    document.getElementById('DiaChiInput').value = lat + ', ' + lng;
+
+                    // Nếu đã có marker, xóa nó đi
+                    if (marker) {
+                        map.removeLayer(marker);
+                    }
+
+                    // Tạo marker mới tại vị trí đã chọn
+                    marker = L.marker([lat, lng]).addTo(map);
+                }
+            }
+        });
+    });
+
+    </script>
+</body>
+</html>
